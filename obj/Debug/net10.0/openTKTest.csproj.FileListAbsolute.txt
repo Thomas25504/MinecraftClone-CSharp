@@ -28,3 +28,4 @@
 /Users/thomasdavidson/Documents/Programming Projects/openTKTest/obj/Debug/net10.0/openTKTest.pdb
 /Users/thomasdavidson/Documents/Programming Projects/openTKTest/obj/Debug/net10.0/openTKTest.genruntimeconfig.cache
 /Users/thomasdavidson/Documents/Programming Projects/openTKTest/obj/Debug/net10.0/ref/openTKTest.dll
+/Users/thomasdavidson/Documents/Programming Projects/openTKTest/obj/Debug/net10.0/openTKTest.sourcelink.json
