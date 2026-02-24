@@ -9,6 +9,7 @@ public enum BlockType
     Sand,
     Wood,
     Glass,
+    Pink_Heart,
     Water
 }
 

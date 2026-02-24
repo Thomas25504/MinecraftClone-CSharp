@@ -13,6 +13,12 @@ public class Game : GameWindow
     private World world; // Manages chunks and world data
     private TextureAtlas atlas; // Texture atlas for block textures
 
+    private int crosshairVao, crosshairVbo;
+    private Shader crosshairShader;
+    
+    private int outlineVao, outlineVbo;
+    private Shader outlineShader;
+
     private bool firstMove = true; // For mouse look initialization
     private Vector2 lastMousePos; // Last mouse position for calculating deltas
 
@@ -21,6 +27,10 @@ public class Game : GameWindow
 
     private bool cursorLocked = true; // Whether the cursor is currently locked for mouse look
     private bool wireframe = false; // Whether to render in wireframe mode (for debugging)
+
+    private BlockType selectedBlock = BlockType.Dirt;
+    private bool leftMouseWasUp = true;
+    private bool rightMouseWasUp = true;
 
     public Game(int width, int height, string title)
         : base(GameWindowSettings.Default,
@@ -53,8 +63,14 @@ public class Game : GameWindow
         float aspect = Size.X / (float)Size.Y;
         camera = new Camera(new Vector3(8, 12, 30), aspect);
 
+        crosshairShader = new Shader("crosshair.vert", "crosshair.frag");
+        InitCrosshair();
+
         // Shader setup
         shader = new Shader("shader.vert", "shader.frag");
+
+        outlineShader = new Shader("outline.vert", "outline.frag");
+        InitOutline();
 
         // World + chunk setup
         atlas = new TextureAtlas("Atlas.png");
@@ -86,12 +102,23 @@ public class Game : GameWindow
             chunk.Render(shader, atlas, transparent: false); // Render opaque blocks first
         }
 
+    
+        RenderOutline();
+        
+
         GL.DepthMask(false); // Disable depth writing for transparent blocks
         foreach (var chunk in world.Chunks.Values)
         {
             chunk.Render(shader, atlas, transparent: true); // Render transparent blocks last
         }
         GL.DepthMask(true); // Re-enable depth writing
+
+        // Draw crosshair
+        GL.Disable(EnableCap.DepthTest);
+        crosshairShader.Use();
+        GL.BindVertexArray(crosshairVao);
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 12);
+        GL.Enable(EnableCap.DepthTest);
 
         SwapBuffers();
     }
@@ -125,6 +152,38 @@ public class Game : GameWindow
         {
             wireframe = !wireframe;
         }
+
+        //Block Selection
+        // Block selection with number keys
+        if (input.IsKeyPressed(Keys.D1)) selectedBlock = BlockType.Dirt;
+        if (input.IsKeyPressed(Keys.D2)) selectedBlock = BlockType.Stone;
+        if (input.IsKeyPressed(Keys.D3)) selectedBlock = BlockType.Glass;
+        if (input.IsKeyPressed(Keys.D4)) selectedBlock = BlockType.Wood;
+        if (input.IsKeyPressed(Keys.D5)) selectedBlock = BlockType.Sand;
+        if (input.IsKeyPressed(Keys.D6)) selectedBlock = BlockType.Pink_Heart;
+
+         // Handle mouse input for placing/removing blocks
+        // Left click - remove block
+        if (MouseState.IsButtonDown(MouseButton.Left) && leftMouseWasUp)
+        {
+            leftMouseWasUp = false;
+            if (Raycast(out Vector3i hitPos, out _))
+            {
+                world.SetBlock(hitPos, Block.Air);
+            }
+        }
+        if (!MouseState.IsButtonDown(MouseButton.Left)) leftMouseWasUp = true;
+
+        // Right click - place block
+        if (MouseState.IsButtonDown(MouseButton.Right) && rightMouseWasUp)
+        {
+            rightMouseWasUp = false;
+            if (Raycast(out Vector3i hitPos, out Vector3i placePos))
+            {
+                world.SetBlock(placePos, Block.FromType(selectedBlock));
+            }
+        }
+        if (!MouseState.IsButtonDown(MouseButton.Right)) rightMouseWasUp = true;
 
         // Movement
         if (input.IsKeyDown(Keys.W))
@@ -179,5 +238,177 @@ public class Game : GameWindow
     {
         base.OnUnload();
         shader.Dispose(); // Clean up shader resources
+        crosshairShader.Dispose();
+        GL.DeleteVertexArray(crosshairVao);
+        GL.DeleteBuffer(crosshairVbo);
+        outlineShader.Dispose();
+        GL.DeleteVertexArray(outlineVao);
+        GL.DeleteBuffer(outlineVbo);
+    }
+
+
+    private const float EyeHeight = 0f;
+
+    private bool Raycast(out Vector3i hitPos, out Vector3i placePos)
+    {
+        hitPos = Vector3i.Zero;
+        placePos = Vector3i.Zero;
+
+        float reach = 6f;
+        Vector3 pos = new Vector3(
+            camera.Position.X,
+            camera.Position.Y + EyeHeight,
+            camera.Position.Z
+        ) + camera.Front * 0.1f;
+        Vector3 dir = camera.Front;
+
+        Vector3i block = new(
+            (int)MathF.Floor(pos.X),
+            (int)MathF.Floor(pos.Y),
+            (int)MathF.Floor(pos.Z)
+        );
+
+        // Remember starting block 
+        Vector3i startBlock = block;
+
+        int stepX = dir.X >= 0 ? 1 : -1;
+        int stepY = dir.Y >= 0 ? 1 : -1;
+        int stepZ = dir.Z >= 0 ? 1 : -1;
+
+        float tDeltaX = MathF.Abs(1f / dir.X);
+        float tDeltaY = MathF.Abs(1f / dir.Y);
+        float tDeltaZ = MathF.Abs(1f / dir.Z);
+
+        float tMaxX = (stepX > 0 ? (MathF.Floor(pos.X) + 1 - pos.X) : (pos.X - MathF.Floor(pos.X))) * tDeltaX;
+        float tMaxY = (stepY > 0 ? (MathF.Floor(pos.Y) + 1 - pos.Y) : (pos.Y - MathF.Floor(pos.Y))) * tDeltaY;
+        float tMaxZ = (stepZ > 0 ? (MathF.Floor(pos.Z) + 1 - pos.Z) : (pos.Z - MathF.Floor(pos.Z))) * tDeltaZ;
+
+        Vector3i last = block;
+
+        while (true)
+        {
+            if (tMaxX < tMaxY && tMaxX < tMaxZ)
+            {
+                if (tMaxX > reach) break;
+                last = block;
+                block.X += stepX;
+                tMaxX += tDeltaX;
+            }
+            else if (tMaxY < tMaxZ)
+            {
+                if (tMaxY > reach) break;
+                last = block;
+                block.Y += stepY;
+                tMaxY += tDeltaY;
+            }
+            else
+            {
+                if (tMaxZ > reach) break;
+                last = block;
+                block.Z += stepZ;
+                tMaxZ += tDeltaZ;
+            }
+
+            if (world.IsBlockSolid(block) && block != startBlock)
+            {
+                hitPos = block;
+                placePos = last;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void InitCrosshair()
+    {
+        float size = 0.02f;
+        float thickness = 0.003f;
+
+        float[] verts =
+        {
+            // Horizontal bar
+            -size, -thickness,
+            size, -thickness,
+            size,  thickness,
+            size,  thickness,
+            -size,  thickness,
+            -size, -thickness,
+
+            // Vertical bar
+            -thickness, -size,
+            thickness, -size,
+            thickness,  size,
+            thickness,  size,
+            -thickness,  size,
+            -thickness, -size,
+        };
+
+        crosshairVao = GL.GenVertexArray();
+        crosshairVbo = GL.GenBuffer();
+
+        GL.BindVertexArray(crosshairVao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, crosshairVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, verts.Length * sizeof(float), verts, BufferUsageHint.StaticDraw);
+
+        GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 2 * sizeof(float), 0);
+        GL.EnableVertexAttribArray(0);
+    }
+
+    private void InitOutline()
+    {
+        float s = 0.501f; // Slightly larger than 0.5 to avoid z-fighting
+
+        float[] verts =
+        {
+            // Bottom face
+            0,0,0,  1,0,0,
+            1,0,0,  1,0,1,
+            1,0,1,  0,0,1,
+            0,0,1,  0,0,0,
+
+            // Top face
+            0,1,0,  1,1,0,
+            1,1,0,  1,1,1,
+            1,1,1,  0,1,1,
+            0,1,1,  0,1,0,
+
+            // Verticals
+            0,0,0,  0,1,0,
+            1,0,0,  1,1,0,
+            1,0,1,  1,1,1,
+            0,0,1,  0,1,1,
+        };
+
+        outlineVao = GL.GenVertexArray();
+        outlineVbo = GL.GenBuffer();
+
+        GL.BindVertexArray(outlineVao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, outlineVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, verts.Length * sizeof(float), verts, BufferUsageHint.StaticDraw);
+
+        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+        GL.EnableVertexAttribArray(0);
+    }
+
+    private void RenderOutline()
+    {
+        if (!Raycast(out Vector3i hitPos, out _))
+            return;
+
+        // Block vertices are centered at integer coords after chunk translation
+        // so outline just needs to sit at hitPos with no offset
+        Matrix4 model = Matrix4.CreateTranslation(hitPos.X, hitPos.Y, hitPos.Z);
+
+        outlineShader.Use();
+        outlineShader.SetMatrix4("model", model);
+        outlineShader.SetMatrix4("view", camera.GetViewMatrix());
+        outlineShader.SetMatrix4("projection", camera.GetProjectionMatrix());
+
+        GL.DepthMask(false);
+        GL.BindVertexArray(outlineVao);
+        GL.LineWidth(2f);
+        GL.DrawArrays(PrimitiveType.Lines, 0, 24);
+        GL.DepthMask(true);
     }
 }

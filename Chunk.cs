@@ -7,10 +7,12 @@ public class Chunk
 {   // Reference to the world (used for neighbor checks)
     private World world;
 
-    // Size of the chunk in blocks (16x16x16)
-    public const int Size = 16;
+    public const int SizeX = 16;
+    public const int SizeY = 256;
+    public const int SizeZ = 16;
+    public const int Size = 16; // For convenience when iterating
 
-    public Block[,,] Blocks = new Block[Size, Size, Size]; // 3D array to hold block data
+    public Block[,,] Blocks = new Block[SizeX, SizeY, SizeZ];
     public Vector3 Position; // World position of the chunk (in block coordinates)
 
     private int vaoSolid, vboSolid, vertexCountSolid;
@@ -41,15 +43,15 @@ public class Chunk
     // Simple terrain generation based on heightmap
     private void GenerateBlocks()
     {
-        for (int x = 0; x < Size; x++)
-        for (int z = 0; z < Size; z++)
+        for (int x = 0; x < SizeX; x++)
+        for (int z = 0; z < SizeZ; z++)
         {
             int worldX = (int)Position.X + x;
             int worldZ = (int)Position.Z + z;
 
             int height = Terrain.GetHeight(worldX, worldZ);
 
-            for (int y = 0; y < Size; y++)
+            for (int y = 0; y < SizeY; y++)
             {
                 int worldY = (int)Position.Y + y;
 
@@ -59,7 +61,7 @@ public class Chunk
                 }
                 else if (worldY == height)
                 {
-                    Blocks[x, y, z] = Block.Grass; // later: Grass
+                    Blocks[x, y, z] = Block.Grass; 
                 }
                 else
                 {
@@ -79,67 +81,67 @@ public class Chunk
         // Front (looking from +Z)
         new[]
         {
-            new Vector3(-0.5f,-0.5f, 0.5f),
-            new Vector3( 0.5f,-0.5f, 0.5f),
-            new Vector3( 0.5f, 0.5f, 0.5f),
-            new Vector3( 0.5f, 0.5f, 0.5f),
-            new Vector3(-0.5f, 0.5f, 0.5f),
-            new Vector3(-0.5f,-0.5f, 0.5f),
+            new Vector3(0, 0, 1),
+            new Vector3(1, 0, 1),
+            new Vector3(1, 1, 1),
+            new Vector3(1, 1, 1),
+            new Vector3(0, 1, 1),
+            new Vector3(0, 0, 1),
         },
 
         // Back (looking from -Z)
         new[]
         {
-            new Vector3( 0.5f,-0.5f,-0.5f),
-            new Vector3(-0.5f,-0.5f,-0.5f),
-            new Vector3(-0.5f, 0.5f,-0.5f),
-            new Vector3(-0.5f, 0.5f,-0.5f),
-            new Vector3( 0.5f, 0.5f,-0.5f),
-            new Vector3( 0.5f,-0.5f,-0.5f),
+            new Vector3(1, 0, 0),
+            new Vector3(0, 0, 0),
+            new Vector3(0, 1, 0),
+            new Vector3(0, 1, 0),
+            new Vector3(1, 1, 0),
+            new Vector3(1, 0, 0),
         },
 
         // Top (looking from +Y)
         new[]
         {
-            new Vector3(-0.5f, 0.5f,-0.5f),
-            new Vector3(-0.5f, 0.5f, 0.5f),
-            new Vector3( 0.5f, 0.5f, 0.5f),
-            new Vector3( 0.5f, 0.5f, 0.5f),
-            new Vector3( 0.5f, 0.5f,-0.5f),
-            new Vector3(-0.5f, 0.5f,-0.5f),
+            new Vector3(0, 1, 0),
+            new Vector3(0, 1, 1),
+            new Vector3(1, 1, 1),
+            new Vector3(1, 1, 1),
+            new Vector3(1, 1, 0),
+            new Vector3(0, 1, 0),
         },
 
         // Bottom (looking from -Y)
         new[]
         {
-            new Vector3(-0.5f,-0.5f,-0.5f),
-            new Vector3( 0.5f,-0.5f,-0.5f),
-            new Vector3( 0.5f,-0.5f, 0.5f),
-            new Vector3( 0.5f,-0.5f, 0.5f),
-            new Vector3(-0.5f,-0.5f, 0.5f),
-            new Vector3(-0.5f,-0.5f,-0.5f),
+            new Vector3(0, 0, 0),
+            new Vector3(1, 0, 0),
+            new Vector3(1, 0, 1),
+            new Vector3(1, 0, 1),
+            new Vector3(0, 0, 1),
+            new Vector3(0, 0, 0),
         },
 
         // Right (looking from +X)
         new[]
         {
-            new Vector3( 0.5f,-0.5f, 0.5f),
-            new Vector3( 0.5f,-0.5f,-0.5f),
-            new Vector3( 0.5f, 0.5f,-0.5f),
-            new Vector3( 0.5f, 0.5f,-0.5f),
-            new Vector3( 0.5f, 0.5f, 0.5f),
-            new Vector3( 0.5f,-0.5f, 0.5f),
+            new Vector3(1, 0, 1),
+            new Vector3(1, 0, 0),
+            new Vector3(1, 1, 0),
+            new Vector3(1, 1, 0),
+            new Vector3(1, 1, 1),
+            new Vector3(1, 0, 1),
         },
 
         // Left (looking from -X)
         new[]
         {
-            new Vector3(-0.5f,-0.5f,-0.5f),
-            new Vector3(-0.5f,-0.5f, 0.5f),
-            new Vector3(-0.5f, 0.5f, 0.5f),
-            new Vector3(-0.5f, 0.5f, 0.5f),
-            new Vector3(-0.5f, 0.5f,-0.5f),
-            new Vector3(-0.5f,-0.5f,-0.5f),
+            new Vector3(0, 0, 0),
+            new Vector3(0, 0, 1),
+            new Vector3(0, 1, 1),
+            new Vector3(0, 1, 1),
+            new Vector3(0, 1, 0),
+            new Vector3(0, 0, 0),
         }
     };
 
@@ -180,9 +182,9 @@ public class Chunk
         List<float> solidVerts = new();
         List<float> transparentVerts = new();
 
-        for (int x = 0; x < Size; x++)
-        for (int y = 0; y < Size; y++)
-        for (int z = 0; z < Size; z++)
+        for (int x = 0; x < SizeX; x++)
+        for (int y = 0; y < SizeY; y++)
+        for (int z = 0; z < SizeZ; z++)
         {
             Block block = Blocks[x, y, z];
             if (!block.IsSolid) continue;

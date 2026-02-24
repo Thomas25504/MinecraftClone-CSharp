@@ -94,3 +94,8 @@ C:\Users\Tomas\Documents\openTKTest\obj\Debug\net10.0\refint\openTKTest.dll
 C:\Users\Tomas\Documents\openTKTest\obj\Debug\net10.0\openTKTest.pdb
 C:\Users\Tomas\Documents\openTKTest\obj\Debug\net10.0\openTKTest.genruntimeconfig.cache
 C:\Users\Tomas\Documents\openTKTest\obj\Debug\net10.0\ref\openTKTest.dll
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\System.Drawing.Common.dll
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\System.Private.Windows.Core.dll
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\System.Private.Windows.GdiPlus.dll
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\runtimes\win\lib\net10.0\Microsoft.Win32.SystemEvents.dll

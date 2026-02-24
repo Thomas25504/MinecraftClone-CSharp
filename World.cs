@@ -41,9 +41,9 @@ public class World
             if (!Chunks.ContainsKey(coord))
             {
                 Vector3 worldPos = new Vector3(
-                    coord.X * Chunk.Size,
+                    coord.X * Chunk.SizeX,
                     0,
-                    coord.Y * Chunk.Size
+                    coord.Y * Chunk.SizeZ
                 );
 
                 Chunk chunk = new Chunk(this, worldPos);
@@ -89,25 +89,61 @@ public class World
 
     public Block GetBlock(Vector3i worldPos)
     {
-        int chunkX = (int)MathF.Floor(worldPos.X / (float)Chunk.Size);
-        int chunkZ = (int)MathF.Floor(worldPos.Z / (float)Chunk.Size);
+        int chunkX = (int)MathF.Floor(worldPos.X / (float)Chunk.SizeX);
+        int chunkZ = (int)MathF.Floor(worldPos.Z / (float)Chunk.SizeZ);
 
         Vector2i chunkCoord = new(chunkX, chunkZ);
 
         if (!Chunks.TryGetValue(chunkCoord, out Chunk chunk))
             return Block.Air; // chunk not loaded = air
 
-        int localX = worldPos.X - chunkX * Chunk.Size;
+        int localX = worldPos.X - chunkX * Chunk.SizeX;
         int localY = worldPos.Y;
-        int localZ = worldPos.Z - chunkZ * Chunk.Size;
+        int localZ = worldPos.Z - chunkZ * Chunk.SizeZ;
 
         // Bounds check
-        if (localX < 0 || localX >= Chunk.Size ||
-            localY < 0 || localY >= Chunk.Size ||
-            localZ < 0 || localZ >= Chunk.Size)
+        if (localX < 0 || localX >= Chunk.SizeX ||
+            localY < 0 || localY >= Chunk.SizeY ||
+            localZ < 0 || localZ >= Chunk.SizeZ)
             return Block.Air;
 
         return chunk.Blocks[localX, localY, localZ];
+    }
+
+    public void SetBlock(Vector3i worldPos, Block block)
+    {
+        int chunkX = (int)MathF.Floor(worldPos.X / (float)Chunk.SizeX);
+        int chunkZ = (int)MathF.Floor(worldPos.Z / (float)Chunk.SizeZ);
+
+        Vector2i chunkCoord = new(chunkX, chunkZ);
+
+        if (!Chunks.TryGetValue(chunkCoord, out Chunk chunk))
+            return;
+
+        int localX = worldPos.X - chunkX * Chunk.SizeX;
+        int localY = worldPos.Y;
+        int localZ = worldPos.Z - chunkZ * Chunk.SizeZ;
+
+        if (localX < 0 || localX >= Chunk.SizeX ||
+            localY < 0 || localY >= Chunk.SizeY ||
+            localZ < 0 || localZ >= Chunk.SizeZ)
+            return;
+
+        chunk.Blocks[localX, localY, localZ] = block;
+        chunk.RebuildMesh();
+
+        // Rebuild neighbor chunks if block is on a border
+        if (localX == 0) RebuildNeighbor(chunkX - 1, chunkZ);
+        if (localX == Chunk.SizeX - 1) RebuildNeighbor(chunkX + 1, chunkZ);
+        if (localZ == 0) RebuildNeighbor(chunkX, chunkZ - 1);
+        if (localZ == Chunk.SizeZ - 1) RebuildNeighbor(chunkX, chunkZ + 1);
+    }
+
+    private void RebuildNeighbor(int chunkX, int chunkZ)
+    {
+        Vector2i coord = new(chunkX, chunkZ);
+        if (Chunks.TryGetValue(coord, out Chunk chunk))
+            chunk.RebuildMesh();
     }
 
     #endregion
@@ -118,8 +154,8 @@ public class World
     private Vector2i WorldToChunk(Vector3 pos)
     {
         return new Vector2i(
-            (int)MathF.Floor(pos.X / Chunk.Size),
-            (int)MathF.Floor(pos.Z / Chunk.Size)
+            (int)MathF.Floor(pos.X / Chunk.SizeX),
+            (int)MathF.Floor(pos.Z / Chunk.SizeZ)
         );
     }
 

@@ -64,6 +64,27 @@ public class Block
         BottomTexture = 6
     };
 
+    public static Block Pink_Heart => new Block
+    {
+        Type = BlockType.Pink_Heart,
+        TopTexture = 7,
+        SideTexture = 7,
+        BottomTexture = 7
+    };
+
+        public static Block FromType(BlockType type) => type switch
+    {
+        BlockType.Dirt  => Dirt,
+        BlockType.Grass => Grass,
+        BlockType.Sand  => Sand,
+        BlockType.Wood  => Wood,
+        BlockType.Stone => Stone,
+        BlockType.Glass => Glass,
+        BlockType.Pink_Heart => Pink_Heart,
+        BlockType.Air   => Air,
+        _ => Air
+    };
+
     //Get the correct texture index based on the face being rendered
     public int GetTextureForFace(int face)
     {

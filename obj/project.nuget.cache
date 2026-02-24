@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "L1u83j4gdW4=",
+  "dgSpecHash": "hklVUSVIGNQ=",
   "success": true,
   "projectFilePath": "C:\\Users\\Tomas\\Documents\\openTKTest\\openTKTest.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Tomas\\.nuget\\packages\\microsoft.win32.systemevents\\10.0.3\\microsoft.win32.systemevents.10.0.3.nupkg.sha512",
     "C:\\Users\\Tomas\\.nuget\\packages\\opentk\\4.9.4\\opentk.4.9.4.nupkg.sha512",
     "C:\\Users\\Tomas\\.nuget\\packages\\opentk.audio.openal\\4.9.4\\opentk.audio.openal.4.9.4.nupkg.sha512",
     "C:\\Users\\Tomas\\.nuget\\packages\\opentk.compute\\4.9.4\\opentk.compute.4.9.4.nupkg.sha512",
@@ -15,7 +16,8 @@
     "C:\\Users\\Tomas\\.nuget\\packages\\opentk.windowing.common\\4.9.4\\opentk.windowing.common.4.9.4.nupkg.sha512",
     "C:\\Users\\Tomas\\.nuget\\packages\\opentk.windowing.desktop\\4.9.4\\opentk.windowing.desktop.4.9.4.nupkg.sha512",
     "C:\\Users\\Tomas\\.nuget\\packages\\opentk.windowing.graphicslibraryframework\\4.9.4\\opentk.windowing.graphicslibraryframework.4.9.4.nupkg.sha512",
-    "C:\\Users\\Tomas\\.nuget\\packages\\stbimagesharp\\2.30.15\\stbimagesharp.2.30.15.nupkg.sha512"
+    "C:\\Users\\Tomas\\.nuget\\packages\\stbimagesharp\\2.30.15\\stbimagesharp.2.30.15.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\system.drawing.common\\10.0.3\\system.drawing.common.10.0.3.nupkg.sha512"
   ],
   "logs": []
 }
