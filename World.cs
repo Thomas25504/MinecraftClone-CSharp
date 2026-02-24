@@ -4,9 +4,10 @@ namespace OpenTKTest;
 
 public class World
 {
-    
+    // How many chunks to load in each direction around the player
     public const int RenderDistance = 4;
 
+    // Neighbor offsets for mesh updates
     private static readonly Vector2i[] NeighborOffsets =
     {
         new(1, 0),
@@ -15,8 +16,10 @@ public class World
         new(0, -1)
     };
 
+    // Loaded chunks indexed by their chunk coordinates (chunkX, chunkZ)
     public Dictionary<Vector2i, Chunk> Chunks = new();
 
+    // Update loaded chunks based on player position
     public void Update(Vector3 playerPosition)
     {
         Vector2i playerChunk = WorldToChunk(playerPosition);
@@ -27,6 +30,7 @@ public class World
 
     #region Chunk Loading
 
+    // Load chunks within render distance and trigger mesh rebuilds for neighbors
     private void LoadChunksAround(Vector2i center)
     {
         for (int x = -RenderDistance; x <= RenderDistance; x++)
@@ -58,6 +62,7 @@ public class World
         }
     }
 
+    // Unload chunks that are outside the render distance
     private void UnloadFarChunks(Vector2i center)
     {
         List<Vector2i> toRemove = new();
@@ -79,6 +84,7 @@ public class World
         }
     }
 
+    // Check if a block at world coordinates is solid
     public bool IsBlockSolid(Vector3i worldPos)
 {
     int chunkX = (int)MathF.Floor(worldPos.X / (float)Chunk.Size);
@@ -106,6 +112,7 @@ public class World
 
     #region Helpers
 
+    // Convert world coordinates to chunk coordinates
     private Vector2i WorldToChunk(Vector3 pos)
     {
         return new Vector2i(

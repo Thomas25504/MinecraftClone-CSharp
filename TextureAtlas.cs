@@ -7,6 +7,7 @@ namespace OpenTKTest;
 
 public class TextureAtlas
 {
+    // OpenGL texture handle
     public int Handle { get; private set; }
     public const int TilesPerRow = 16; // 16x16 atlas
 
@@ -30,7 +31,7 @@ public class TextureAtlas
             image.Data
         );
 
-        // IMPORTANT for voxel games
+        
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
@@ -40,6 +41,7 @@ public class TextureAtlas
         GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
     }
 
+    // Get UV coordinates for a given tile index in the atlas
     public static Vector2[] GetUVs(int tileIndex)
     {
         int x = tileIndex % TilesPerRow;

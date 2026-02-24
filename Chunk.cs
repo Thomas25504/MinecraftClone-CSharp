@@ -26,7 +26,7 @@ public class Chunk
         BuildMesh();
      }
     
-
+    //Rebuilds the mesh (called when blocks are modified)    
     public void RebuildMesh()
     {
         if (vao != 0)
@@ -46,35 +46,36 @@ public class Chunk
 
     #region Block Generation 
 
+    // Simple terrain generation based on heightmap
     private void GenerateBlocks()
-{
-    for (int x = 0; x < Size; x++)
-    for (int z = 0; z < Size; z++)
     {
-        int worldX = (int)Position.X + x;
-        int worldZ = (int)Position.Z + z;
-
-        int height = Terrain.GetHeight(worldX, worldZ);
-
-        for (int y = 0; y < Size; y++)
+        for (int x = 0; x < Size; x++)
+        for (int z = 0; z < Size; z++)
         {
-            int worldY = (int)Position.Y + y;
+            int worldX = (int)Position.X + x;
+            int worldZ = (int)Position.Z + z;
 
-            if (worldY > height)
+            int height = Terrain.GetHeight(worldX, worldZ);
+
+            for (int y = 0; y < Size; y++)
             {
-                Blocks[x, y, z] = Block.Air;
-            }
-            else if (worldY == height)
-            {
-                Blocks[x, y, z] = Block.Dirt; // later: Grass
-            }
-            else
-            {
-                Blocks[x, y, z] = Block.Dirt;
+                int worldY = (int)Position.Y + y;
+
+                if (worldY > height)
+                {
+                    Blocks[x, y, z] = Block.Air;
+                }
+                else if (worldY == height)
+                {
+                    Blocks[x, y, z] = Block.Dirt; // later: Grass
+                }
+                else
+                {
+                    Blocks[x, y, z] = Block.Dirt;
+                }
             }
         }
     }
-}
 
     #endregion
 
@@ -181,6 +182,7 @@ public class Chunk
             0.6f,  // Left
         };
 
+    // Builds the mesh by iterating over all blocks and adding vertices for visible faces
     private void BuildMesh()
     {
         List<float> verts = new();
@@ -218,6 +220,7 @@ public class Chunk
         UploadMesh(verts);
     }
 
+    // Checks if a face of a block should be rendered by looking at the neighboring block
     private bool IsFaceVisible(int x, int y, int z, int face)
     {
         // Neighbor block in local coordinates
@@ -238,6 +241,7 @@ public class Chunk
         return !world.IsBlockSolid(neighborWorld);
     }
 
+    // Uploads the vertex data to the GPU and sets up the vertex attributes
     private void UploadMesh(List<float> verts)
     {
         vao = GL.GenVertexArray();
@@ -267,6 +271,7 @@ public class Chunk
         vertexCount = verts.Count / 6;
     }
 
+    // Renders the chunk by binding the VAO and drawing the triangles
     public void Render(Shader shader, TextureAtlas atlas)
     {
         shader.Use();
@@ -281,6 +286,7 @@ public class Chunk
         GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
     }
 
+    // Converts local block coordinates to world coordinates by adding the chunk's position
     private Vector3i LocalToWorld(int x, int y, int z)
     {
         return new Vector3i(

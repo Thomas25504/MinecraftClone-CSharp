@@ -4,19 +4,19 @@ namespace OpenTKTest;
 
 public class Camera
 {
-    public Vector3 Position = new Vector3(0.0f, 0.0f, 3.0f);
-    public float AspectRatio;
+    public Vector3 Position = new Vector3(0.0f, 0.0f, 3.0f); // Default position
+    public float AspectRatio; // Set this when initializing the camera
 
-    public float _pitch = 0f;
-    public float _yaw = -90f;
-    private Vector3 _front = new Vector3(0f, 0f, 0f);
-    private Vector3 _up = Vector3.UnitY;
-    private Vector3 _right = Vector3.UnitX;
-    private float _fov = 75f;
+    public float _pitch = 0f; // Rotation around the X-axis
+    public float _yaw = -90f; // Rotation around the Y-axis (initialized to -90 to look towards the negative Z-axis)
+    private Vector3 _front = new Vector3(0f, 0f, 0f); // This will be calculated based on pitch and yaw
+    private Vector3 _up = Vector3.UnitY; // World up vector (Y-axis)
+    private Vector3 _right = Vector3.UnitX; // This will be calculated as the cross product of front and up
+    private float _fov = 75f; // Field of view in degrees
 
-    public Vector3 Front => _front;
-    public Vector3 Up => _up;
-    public Vector3 Right => _right;
+    public Vector3 Front => _front; // Direction the camera is looking at
+    public Vector3 Up => _up; // Up direction of the camera
+    public Vector3 Right => _right; // Right direction of the camera
 
     public Camera(Vector3 startPosition, float aspectRatio)
     {
@@ -25,6 +25,7 @@ public class Camera
         UpdateVectors();
     }
 
+    // Properties to get and set pitch and yaw with clamping for pitch
     public float Pitch
     {
         get => _pitch;
@@ -35,6 +36,7 @@ public class Camera
         }
     }
 
+    // Yaw can wrap around
     public float Yaw
     {
         get => _yaw;
@@ -45,11 +47,13 @@ public class Camera
         }
     }
 
+    // Method to get the view matrix based on the current position and orientation of the camera
     public Matrix4 GetViewMatrix()
     {
         return Matrix4.LookAt(Position, Position + _front, _up);
     }
 
+    // Method to get the projection matrix based on the current field of view and aspect ratio
     public Matrix4 GetProjectionMatrix()
     {
         return Matrix4.CreatePerspectiveFieldOfView(
@@ -60,6 +64,7 @@ public class Camera
         );
     }
 
+    // Method to update the front, right, and up vectors based on the current pitch and yaw
     private void UpdateVectors()
     {
         float pitchRad = MathHelper.DegreesToRadians(_pitch);

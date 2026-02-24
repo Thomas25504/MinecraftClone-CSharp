@@ -68,6 +68,7 @@ public class Shader : IDisposable
         GL.Uniform3(location, vector);
     }
 
+    // checks for shader compilation/linking errors and throws exceptions with the error log
     private void CheckCompileErrors(int shader, string type)
     {
         if (type == "PROGRAM")
@@ -90,6 +91,7 @@ public class Shader : IDisposable
         }
     }
 
+    // implements IDisposable to allow for proper cleanup of OpenGL resources
     public void Dispose()
     {
         if (!_disposed)
@@ -100,6 +102,7 @@ public class Shader : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    // finalizer to ensure resources are freed if Dispose is not called
     ~Shader()
     {
         if (!_disposed)

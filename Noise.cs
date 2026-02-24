@@ -4,7 +4,7 @@ namespace OpenTKTest;
 
 public static class Noise
 {
-    // Simple value noise (fast + easy to tweak)
+    // Simple value noise implementation for terrain generation
     public static float Perlin(float x, float y, int seed = 0)
     {
         int x0 = (int)MathF.Floor(x);
@@ -26,17 +26,19 @@ public static class Noise
 
         return Lerp(ix0, ix1, sy);
     }
-
+    //Ease curve for smoother transitions
     private static float Fade(float t)
     {
         return t * t * t * (t * (t * 6 - 15) + 10);
     }
 
+    // Linear interpolation
     private static float Lerp(float a, float b, float t)
     {
         return a + t * (b - a);
     }
-
+    
+    // Generate a pseudo-random gradient vector and compute the dot product with the distance vector
     private static float DotGridGradient(int ix, int iy, float x, float y, int seed)
     {
         int hash = ix * 374761393 + iy * 668265263 ^ seed;
