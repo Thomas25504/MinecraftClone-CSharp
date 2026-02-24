@@ -25,6 +25,7 @@ public class Game : GameWindow
     private float _sensitivity = 0.2f;
     
     private bool _cursorLocked = true;
+    private bool _showWireFrame = false;
 
     float[] vertices = { // Cube vertices (36 vertices for 6 faces)
         // Front face
@@ -88,13 +89,16 @@ public class Game : GameWindow
         
 
         camera = new Camera(new Vector3(0, 0, 5), Size.X / (float)Size.Y);  
+
+        GL.Enable(EnableCap.CullFace);
+        GL.CullFace(CullFaceMode.Back);
         
         // Capture and hide the cursor for FPS-style camera control
         CursorState = CursorState.Grabbed;
         
         // Set the clear color for the OpenGL context to a light blue color.
-        GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        //GL.Enable(EnableCap.DepthTest);
+        GL.ClearColor(0.5f, 0.7f, 1.0f, 1.0f);
+        GL.Enable(EnableCap.DepthTest);
 
         // Generate and bind a Vertex Array Object (VAO) to store the vertex attribute configuration.
         vbo = GL.GenBuffer();
@@ -126,17 +130,28 @@ public class Game : GameWindow
         // Clear the color buffer to prepare for rendering the next frame.
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
         shader.Use();
         
-        // Update view matrix based on camera position
-        Matrix4 view = camera.GetViewMatrix();
+        
 
         shader.SetMatrix4("model", Matrix4.Identity);
         shader.SetMatrix4("view", camera.GetViewMatrix());
         shader.SetMatrix4("projection", camera.GetProjectionMatrix());
         
         GL.BindVertexArray(vao);
+
+        if(_showWireFrame)
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+        else
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
         GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill); // Reset to fill mode after drawing
+
+
 
         // Swap the front and back buffers to display the rendered frame on the screen.
         SwapBuffers();
@@ -177,6 +192,12 @@ public class Game : GameWindow
             {
                 _firstMove = true; // Reset first move when unlocking to avoid camera jump
             }
+        }
+
+        if(KeyboardState.IsKeyPressed(Keys.F))
+        {
+            _showWireFrame = !_showWireFrame;
+            GL.PolygonMode(MaterialFace.FrontAndBack, _showWireFrame ? PolygonMode.Line : PolygonMode.Fill);
         }
 
         float delta = (float)args.Time;
