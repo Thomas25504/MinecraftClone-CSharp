@@ -1,11 +1,13 @@
 #version 330 core
+in vec2 TexCoord;
+in float Brightness;
 
-in vec2 vUV;
 out vec4 FragColor;
 
 uniform sampler2D atlas;
 
 void main()
 {
-    FragColor = texture(atlas, vUV);
+    vec4 texColor = texture(atlas, TexCoord);
+    FragColor = vec4(texColor.rgb * Brightness, texColor.a);
 }

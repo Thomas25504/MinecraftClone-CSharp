@@ -171,86 +171,101 @@ public class Chunk
         new(-1,0, 0),
     };
 
-    private void BuildMesh()
-{
-    List<float> verts = new();
-
-    for (int x = 0; x < Size; x++)
-    for (int y = 0; y < Size; y++)
-    for (int z = 0; z < Size; z++)
-    {
-        Block block = Blocks[x, y, z];
-        if (!block.IsSolid)
-            continue;
-
-        for (int f = 0; f < 6; f++)
+     static readonly float[] FaceBrightness =
         {
-            if (!IsFaceVisible(x, y, z, f))
+            0.8f,  // Front
+            0.8f,  // Back
+            1.0f,  // Top    (brightest)
+            0.3f,  // Bottom (darkest)
+            0.6f,  // Right
+            0.6f,  // Left
+        };
+
+    private void BuildMesh()
+    {
+        List<float> verts = new();
+
+        for (int x = 0; x < Size; x++)
+        for (int y = 0; y < Size; y++)
+        for (int z = 0; z < Size; z++)
+        {
+            Block block = Blocks[x, y, z];
+            if (!block.IsSolid)
                 continue;
 
-            Vector2[] uvs = TextureAtlas.GetUVs(block.GetTextureForFace(f));
-
-            for (int i = 0; i < 6; i++)
+            for (int f = 0; f < 6; f++)
             {
-                Vector3 pos = Faces[f][i] + new Vector3(x, y, z);
-                Vector2 uv  = uvs[i];
+                if (!IsFaceVisible(x, y, z, f))
+                    continue;
 
-                verts.Add(pos.X);
-                verts.Add(pos.Y);
-                verts.Add(pos.Z);
-                verts.Add(uv.X);
-                verts.Add(uv.Y);
+                Vector2[] uvs = TextureAtlas.GetUVs(block.GetTextureForFace(f));
+
+                for (int i = 0; i < 6; i++)
+                {
+                    Vector3 pos = Faces[f][i] + new Vector3(x, y, z);
+                    Vector2 uv  = uvs[i];
+
+                    verts.Add(pos.X);
+                    verts.Add(pos.Y);
+                    verts.Add(pos.Z);
+                    verts.Add(uv.X);
+                    verts.Add(uv.Y);
+                    verts.Add(FaceBrightness[f]);
+                }
             }
         }
+
+        UploadMesh(verts);
     }
 
-    UploadMesh(verts);
-}
-
     private bool IsFaceVisible(int x, int y, int z, int face)
-{
-    // Neighbor block in local coordinates
-    Vector3i neighborLocal = new(
-        x + Neighbors[face].X,
-        y + Neighbors[face].Y,
-        z + Neighbors[face].Z
-    );
+    {
+        // Neighbor block in local coordinates
+        Vector3i neighborLocal = new(
+            x + Neighbors[face].X,
+            y + Neighbors[face].Y,
+            z + Neighbors[face].Z
+        );
 
-    // Convert to world coordinates
-    Vector3i neighborWorld = LocalToWorld(
-        neighborLocal.X,
-        neighborLocal.Y,
-        neighborLocal.Z
-    );
+        // Convert to world coordinates
+        Vector3i neighborWorld = LocalToWorld(
+            neighborLocal.X,
+            neighborLocal.Y,
+            neighborLocal.Z
+        );
 
-    // Only render face if neighbor is air or chunk not loaded
-    return !world.IsBlockSolid(neighborWorld);
-}
+        // Only render face if neighbor is air or chunk not loaded
+        return !world.IsBlockSolid(neighborWorld);
+    }
 
     private void UploadMesh(List<float> verts)
-{
-    vao = GL.GenVertexArray();
-    vbo = GL.GenBuffer();
+    {
+        vao = GL.GenVertexArray();
+        vbo = GL.GenBuffer();
 
-    GL.BindVertexArray(vao);
-    GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-    GL.BufferData(
-        BufferTarget.ArrayBuffer,
-        verts.Count * sizeof(float),
-        verts.ToArray(),
-        BufferUsageHint.StaticDraw
-    );
+        GL.BindVertexArray(vao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            verts.Count * sizeof(float),
+            verts.ToArray(),
+            BufferUsageHint.StaticDraw
+        );
 
-    // Position
-    GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-    GL.EnableVertexAttribArray(0);
+        // Position
+        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+        GL.EnableVertexAttribArray(0);
 
-    // UV
-    GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-    GL.EnableVertexAttribArray(1);
+        // UV
+        GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+        GL.EnableVertexAttribArray(1);
 
-    vertexCount = verts.Count / 5;
-}
+        // Brightness
+        GL.VertexAttribPointer(2, 1, VertexAttribPointerType.Float, false, 6 * sizeof(float), 5 * sizeof(float));
+        GL.EnableVertexAttribArray(2);
+
+        vertexCount = verts.Count / 6;
+    }
 
     public void Render(Shader shader, TextureAtlas atlas)
     {
