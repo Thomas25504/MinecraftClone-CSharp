@@ -6,6 +6,7 @@ namespace OpenTKTest;
 public class Chunk
 {   // Reference to the world (used for neighbor checks)
     private World world;
+
     // Size of the chunk in blocks (16x16x16)
     public const int Size = 16;
 
@@ -18,12 +19,13 @@ public class Chunk
 
     // Constructor generates blocks and builds the mesh
     public Chunk(World world, Vector3 position)
-    {
+     {
         this.world = world;
-        Position = position;
+        this.Position = position;
         GenerateBlocks();
-        RebuildMesh();
-    }
+        BuildMesh();
+     }
+    
 
     public void RebuildMesh()
     {
@@ -45,18 +47,34 @@ public class Chunk
     #region Block Generation 
 
     private void GenerateBlocks()
+{
+    for (int x = 0; x < Size; x++)
+    for (int z = 0; z < Size; z++)
     {
-        for (int x = 0; x < Size; x++) // Loop through each block in the chunk
-        for (int y = 0; y < Size; y++) 
-        for (int z = 0; z < Size; z++)
+        int worldX = (int)Position.X + x;
+        int worldZ = (int)Position.Z + z;
+
+        int height = Terrain.GetHeight(worldX, worldZ);
+
+        for (int y = 0; y < Size; y++)
         {
-            Blocks[x, y, z] = new Block 
+            int worldY = (int)Position.Y + y;
+
+            if (worldY > height)
             {
-                // Simple flat terrain: dirt up to y=4, then air
-                Type = y < 4 ? BlockType.Dirt : BlockType.Air 
-            };
+                Blocks[x, y, z] = Block.Air;
+            }
+            else if (worldY == height)
+            {
+                Blocks[x, y, z] = Block.Dirt; // later: Grass
+            }
+            else
+            {
+                Blocks[x, y, z] = Block.Dirt;
+            }
         }
     }
+}
 
     #endregion
 
@@ -132,6 +150,46 @@ public class Chunk
         }
     };
 
+    static readonly Vector2[] FaceUVs =
+    {
+        new Vector2(0, 0),
+        new Vector2(1, 0),
+        new Vector2(1, 1),
+        new Vector2(1, 1),
+        new Vector2(0, 1),
+        new Vector2(0, 0)
+    };
+
+    static readonly Vector2[] FaceUV_Default =
+    {
+        new(0, 0),
+        new(1, 0),
+        new(1, 1),
+        new(1, 1),
+        new(0, 1),
+        new(0, 0)
+    };
+
+    static readonly Vector2[] FaceUV_Rot90 =
+    {
+        new(1, 0),
+        new(1, 1),
+        new(0, 1),
+        new(0, 1),
+        new(0, 0),
+        new(1, 0)
+    };
+
+    static readonly Vector2[] FaceUV_Rot270 =
+    {
+        new(0, 1),
+        new(0, 0),
+        new(1, 0),
+        new(1, 0),
+        new(1, 1),
+        new(0, 1)
+    };
+
     // Neighbor offsets for each face direction (used to check if a face should be rendered)
     static readonly Vector3i[] Neighbors =
     {
@@ -144,30 +202,52 @@ public class Chunk
     };
 
     private void BuildMesh()
-    {
-        List<Vector3> verts = new();
+{
+    List<float> verts = new();
 
-        for (int x = 0; x < Size; x++)
-        for (int y = 0; y < Size; y++)
-        for (int z = 0; z < Size; z++)
+    for (int x = 0; x < Size; x++)
+    for (int y = 0; y < Size; y++)
+    for (int z = 0; z < Size; z++)
+    {
+        Block block = Blocks[x, y, z];
+        if (!block.IsSolid)
+            continue;
+
+        for (int f = 0; f < 6; f++)
         {
-            if (!Blocks[x, y, z].IsSolid)
+            if (!IsFaceVisible(x, y, z, f))
                 continue;
 
-            for (int f = 0; f < 6; f++)
-            {
-                Vector3i n = new(x + Neighbors[f].X, y + Neighbors[f].Y, z + Neighbors[f].Z);
+            Vector2[] atlasUVs = TextureAtlas.GetUVs(
+                block.GetTextureForFace(f)
+            );
 
-                if (IsFaceVisible(x, y, z, f))
-                {
-                    foreach (var v in Faces[f])
-                        verts.Add(v + new Vector3(x, y, z));
-                }
+            atlasUVs = f switch
+            {
+                4 => RotateUVs(atlasUVs, 90),   // Right
+                5 => RotateUVs(atlasUVs, 270),  // Left
+                _ => atlasUVs
+            };
+
+            Vector2[] uvs = atlasUVs;
+
+            for (int i = 0; i < 6; i++)
+            {
+                Vector3 pos = Faces[f][i] + new Vector3(x, y, z);
+                Vector2 uv  = uvs[i];
+
+                verts.Add(pos.X);
+                verts.Add(pos.Y);
+                verts.Add(pos.Z);
+
+                verts.Add(uv.X);
+                verts.Add(uv.Y);
             }
         }
-
-        UploadMesh(verts);
     }
+
+    UploadMesh(verts);
+}
 
     private bool IsFaceVisible(int x, int y, int z, int face)
 {
@@ -189,44 +269,72 @@ public class Chunk
     return !world.IsBlockSolid(neighborWorld);
 }
 
-    private void UploadMesh(List<Vector3> verts)
+    private void UploadMesh(List<float> verts)
+{
+    vao = GL.GenVertexArray();
+    vbo = GL.GenBuffer();
+
+    GL.BindVertexArray(vao);
+    GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+    GL.BufferData(
+        BufferTarget.ArrayBuffer,
+        verts.Count * sizeof(float),
+        verts.ToArray(),
+        BufferUsageHint.StaticDraw
+    );
+
+    // Position
+    GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+    GL.EnableVertexAttribArray(0);
+
+    // UV
+    GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+    GL.EnableVertexAttribArray(1);
+
+    vertexCount = verts.Count / 5;
+}
+
+    public void Render(Shader shader, TextureAtlas atlas)
     {
-        float[] data = new float[verts.Count * 3];
+        shader.Use();
 
-        for (int i = 0; i < verts.Count; i++)
-        {
-            data[i * 3 + 0] = verts[i].X;
-            data[i * 3 + 1] = verts[i].Y;
-            data[i * 3 + 2] = verts[i].Z;
-        }
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, atlas.Handle);
 
-        vao = GL.GenVertexArray();
-        vbo = GL.GenBuffer();
-
-        GL.BindVertexArray(vao);
-        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-        GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float), data, BufferUsageHint.StaticDraw);
-
-        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-        GL.EnableVertexAttribArray(0);
-
-        vertexCount = data.Length / 3;
-    }
-
-    public void Render(Shader shader)
-    {
+        shader.SetInt("atlas", 0);
         shader.SetMatrix4("model", Matrix4.CreateTranslation(Position));
+
         GL.BindVertexArray(vao);
         GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
     }
 
     private Vector3i LocalToWorld(int x, int y, int z)
-{
-    return new Vector3i(
-        (int)Position.X + x,
-        (int)Position.Y + y,
-        (int)Position.Z + z
-    );
-}
+    {
+        return new Vector3i(
+            (int)Position.X + x,
+            (int)Position.Y + y,
+            (int)Position.Z + z
+        );
+    }
+
+    static Vector2[] RotateUVs(Vector2[] uvs, int rotation)
+    {
+        Vector2[] r = new Vector2[6];
+
+        for (int i = 0; i < 6; i++)
+        {
+            Vector2 uv = uvs[i];
+
+            r[i] = rotation switch
+            {
+                90  => new Vector2(uv.Y, 1f - uv.X),
+                180 => new Vector2(1f - uv.X, 1f - uv.Y),
+                270 => new Vector2(1f - uv.Y, uv.X),
+                _   => uv
+            };
+        }
+
+        return r;
+    }
 }
 #endregion

@@ -1,7 +1,11 @@
 #version 330 core
+
+in vec2 vUV;
 out vec4 FragColor;
+
+uniform sampler2D atlas;
 
 void main()
 {
-    FragColor = vec4(0.3f, 1.0f, 0.5f, 1.0f);
+    FragColor = texture(atlas, vUV);
 }

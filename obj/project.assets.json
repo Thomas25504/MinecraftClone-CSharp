@@ -185,6 +185,15 @@
             "related": ".pdb;.xml"
           }
         }
+      },
+      "StbImageSharp/2.30.15": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/StbImageSharp.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/StbImageSharp.dll": {}
+        }
       }
     }
   },
@@ -371,33 +380,54 @@
         "opentk.windowing.graphicslibraryframework.4.9.4.nupkg.sha512",
         "opentk.windowing.graphicslibraryframework.nuspec"
       ]
+    },
+    "StbImageSharp/2.30.15": {
+      "sha512": "7QqbupVhz2kcFUPTgMw4iHR9rYDHGundzzee19Mwmd1typ2Lnv8EVJcLJxlkeBM2+4ex0NwsMtdbGSJctp1XCQ==",
+      "type": "package",
+      "path": "stbimagesharp/2.30.15",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net471/StbImageSharp.dll",
+        "lib/netstandard2.0/StbImageSharp.dll",
+        "stbimagesharp.2.30.15.nupkg.sha512",
+        "stbimagesharp.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "OpenTK >= 4.9.4"
+      "OpenTK >= 4.9.4",
+      "StbImageSharp >= 2.30.15"
     ]
   },
   "packageFolders": {
-    "/Users/thomasdavidson/.nuget/packages/": {}
+    "C:\\Users\\Tomas\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/thomasdavidson/Documents/Programming Projects/openTKTest/openTKTest.csproj",
+      "projectUniqueName": "C:\\Users\\Tomas\\Documents\\openTKTest\\openTKTest.csproj",
       "projectName": "openTKTest",
-      "projectPath": "/Users/thomasdavidson/Documents/Programming Projects/openTKTest/openTKTest.csproj",
-      "packagesPath": "/Users/thomasdavidson/.nuget/packages/",
-      "outputPath": "/Users/thomasdavidson/Documents/Programming Projects/openTKTest/obj/",
+      "projectPath": "C:\\Users\\Tomas\\Documents\\openTKTest\\openTKTest.csproj",
+      "packagesPath": "C:\\Users\\Tomas\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Tomas\\Documents\\openTKTest\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/thomasdavidson/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Tomas\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "/opt/homebrew/Cellar/dotnet/10.0.102/libexec/library-packs": {},
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -425,6 +455,10 @@
           "OpenTK": {
             "target": "Package",
             "version": "[4.9.4, )"
+          },
+          "StbImageSharp": {
+            "target": "Package",
+            "version": "[2.30.15, )"
           }
         },
         "imports": [
@@ -443,7 +477,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/10.0.102/libexec/sdk/10.0.102/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

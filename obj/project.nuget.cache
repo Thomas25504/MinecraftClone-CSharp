@@ -1,20 +1,21 @@
 {
   "version": 2,
-  "dgSpecHash": "m12IT95D+ZA=",
+  "dgSpecHash": "L1u83j4gdW4=",
   "success": true,
-  "projectFilePath": "/Users/thomasdavidson/Documents/Programming Projects/openTKTest/openTKTest.csproj",
+  "projectFilePath": "C:\\Users\\Tomas\\Documents\\openTKTest\\openTKTest.csproj",
   "expectedPackageFiles": [
-    "/Users/thomasdavidson/.nuget/packages/opentk/4.9.4/opentk.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.audio.openal/4.9.4/opentk.audio.openal.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.compute/4.9.4/opentk.compute.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.core/4.9.4/opentk.core.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.graphics/4.9.4/opentk.graphics.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.input/4.9.4/opentk.input.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.mathematics/4.9.4/opentk.mathematics.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.redist.glfw/3.4.0.44/opentk.redist.glfw.3.4.0.44.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.windowing.common/4.9.4/opentk.windowing.common.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.windowing.desktop/4.9.4/opentk.windowing.desktop.4.9.4.nupkg.sha512",
-    "/Users/thomasdavidson/.nuget/packages/opentk.windowing.graphicslibraryframework/4.9.4/opentk.windowing.graphicslibraryframework.4.9.4.nupkg.sha512"
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk\\4.9.4\\opentk.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.audio.openal\\4.9.4\\opentk.audio.openal.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.compute\\4.9.4\\opentk.compute.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.core\\4.9.4\\opentk.core.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.graphics\\4.9.4\\opentk.graphics.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.input\\4.9.4\\opentk.input.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.mathematics\\4.9.4\\opentk.mathematics.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.redist.glfw\\3.4.0.44\\opentk.redist.glfw.3.4.0.44.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.windowing.common\\4.9.4\\opentk.windowing.common.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.windowing.desktop\\4.9.4\\opentk.windowing.desktop.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\opentk.windowing.graphicslibraryframework\\4.9.4\\opentk.windowing.graphicslibraryframework.4.9.4.nupkg.sha512",
+    "C:\\Users\\Tomas\\.nuget\\packages\\stbimagesharp\\2.30.15\\stbimagesharp.2.30.15.nupkg.sha512"
   ],
   "logs": []
 }

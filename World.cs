@@ -4,6 +4,7 @@ namespace OpenTKTest;
 
 public class World
 {
+    
     public const int RenderDistance = 4;
 
     private static readonly Vector2i[] NeighborOffsets =

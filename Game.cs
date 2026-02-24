@@ -11,6 +11,7 @@ public class Game : GameWindow
     private Shader shader;
     private Camera camera;
     private World world;
+    private TextureAtlas atlas;
 
     private bool firstMove = true;
     private Vector2 lastMousePos;
@@ -36,7 +37,7 @@ public class Game : GameWindow
         base.OnLoad();
 
         // OpenGL state
-        GL.ClearColor(0.1f, 0.2f, 0.3f, 1f);
+        GL.ClearColor(0.4f, 0.7f, 1.0f, 1f);
         GL.Enable(EnableCap.DepthTest);
         GL.Enable(EnableCap.CullFace);
         GL.CullFace(CullFaceMode.Back);
@@ -51,6 +52,7 @@ public class Game : GameWindow
         shader = new Shader("shader.vert", "shader.frag");
 
         // World + chunk
+        atlas = new TextureAtlas("Atlas.png");
         world = new World();
     }
 
@@ -72,7 +74,7 @@ public class Game : GameWindow
         // Render all loaded chunks
         foreach (var chunk in world.Chunks.Values)
         {
-            chunk.Render(shader);
+            chunk.Render(shader, atlas);
         }
 
         SwapBuffers();
