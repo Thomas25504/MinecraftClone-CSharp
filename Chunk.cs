@@ -83,7 +83,7 @@ public class Chunk
     // Predefined vertices for each face of a cube (6 faces, 2 triangles per face)
     static readonly Vector3[][] Faces =
     {
-        // Front
+        // Front (looking from +Z)
         new[]
         {
             new Vector3(-0.5f,-0.5f, 0.5f),
@@ -94,18 +94,18 @@ public class Chunk
             new Vector3(-0.5f,-0.5f, 0.5f),
         },
 
-        // Back
+        // Back (looking from -Z)
         new[]
         {
-            new Vector3(-0.5f,-0.5f,-0.5f),
-            new Vector3(-0.5f, 0.5f,-0.5f),
-            new Vector3( 0.5f, 0.5f,-0.5f),
-            new Vector3( 0.5f, 0.5f,-0.5f),
             new Vector3( 0.5f,-0.5f,-0.5f),
             new Vector3(-0.5f,-0.5f,-0.5f),
+            new Vector3(-0.5f, 0.5f,-0.5f),
+            new Vector3(-0.5f, 0.5f,-0.5f),
+            new Vector3( 0.5f, 0.5f,-0.5f),
+            new Vector3( 0.5f,-0.5f,-0.5f),
         },
 
-        // Top
+        // Top (looking from +Y)
         new[]
         {
             new Vector3(-0.5f, 0.5f,-0.5f),
@@ -116,7 +116,7 @@ public class Chunk
             new Vector3(-0.5f, 0.5f,-0.5f),
         },
 
-        // Bottom
+        // Bottom (looking from -Y)
         new[]
         {
             new Vector3(-0.5f,-0.5f,-0.5f),
@@ -127,18 +127,18 @@ public class Chunk
             new Vector3(-0.5f,-0.5f,-0.5f),
         },
 
-        // Right
+        // Right (looking from +X)
         new[]
         {
-            new Vector3( 0.5f,-0.5f,-0.5f),
-            new Vector3( 0.5f, 0.5f,-0.5f),
-            new Vector3( 0.5f, 0.5f, 0.5f),
-            new Vector3( 0.5f, 0.5f, 0.5f),
             new Vector3( 0.5f,-0.5f, 0.5f),
             new Vector3( 0.5f,-0.5f,-0.5f),
+            new Vector3( 0.5f, 0.5f,-0.5f),
+            new Vector3( 0.5f, 0.5f,-0.5f),
+            new Vector3( 0.5f, 0.5f, 0.5f),
+            new Vector3( 0.5f,-0.5f, 0.5f),
         },
 
-        // Left
+        // Left (looking from -X)
         new[]
         {
             new Vector3(-0.5f,-0.5f,-0.5f),
@@ -152,42 +152,12 @@ public class Chunk
 
     static readonly Vector2[] FaceUVs =
     {
-        new Vector2(0, 0),
-        new Vector2(1, 0),
-        new Vector2(1, 1),
-        new Vector2(1, 1),
         new Vector2(0, 1),
-        new Vector2(0, 0)
-    };
-
-    static readonly Vector2[] FaceUV_Default =
-    {
-        new(0, 0),
-        new(1, 0),
-        new(1, 1),
-        new(1, 1),
-        new(0, 1),
-        new(0, 0)
-    };
-
-    static readonly Vector2[] FaceUV_Rot90 =
-    {
-        new(1, 0),
-        new(1, 1),
-        new(0, 1),
-        new(0, 1),
-        new(0, 0),
-        new(1, 0)
-    };
-
-    static readonly Vector2[] FaceUV_Rot270 =
-    {
-        new(0, 1),
-        new(0, 0),
-        new(1, 0),
-        new(1, 0),
-        new(1, 1),
-        new(0, 1)
+        new Vector2(1, 1),
+        new Vector2(1, 0),
+        new Vector2(1, 0),
+        new Vector2(0, 0),
+        new Vector2(0, 1)
     };
 
     // Neighbor offsets for each face direction (used to check if a face should be rendered)
@@ -218,18 +188,7 @@ public class Chunk
             if (!IsFaceVisible(x, y, z, f))
                 continue;
 
-            Vector2[] atlasUVs = TextureAtlas.GetUVs(
-                block.GetTextureForFace(f)
-            );
-
-            atlasUVs = f switch
-            {
-                4 => RotateUVs(atlasUVs, 90),   // Right
-                5 => RotateUVs(atlasUVs, 270),  // Left
-                _ => atlasUVs
-            };
-
-            Vector2[] uvs = atlasUVs;
+            Vector2[] uvs = TextureAtlas.GetUVs(block.GetTextureForFace(f));
 
             for (int i = 0; i < 6; i++)
             {
@@ -239,7 +198,6 @@ public class Chunk
                 verts.Add(pos.X);
                 verts.Add(pos.Y);
                 verts.Add(pos.Z);
-
                 verts.Add(uv.X);
                 verts.Add(uv.Y);
             }
@@ -317,24 +275,5 @@ public class Chunk
         );
     }
 
-    static Vector2[] RotateUVs(Vector2[] uvs, int rotation)
-    {
-        Vector2[] r = new Vector2[6];
-
-        for (int i = 0; i < 6; i++)
-        {
-            Vector2 uv = uvs[i];
-
-            r[i] = rotation switch
-            {
-                90  => new Vector2(uv.Y, 1f - uv.X),
-                180 => new Vector2(1f - uv.X, 1f - uv.Y),
-                270 => new Vector2(1f - uv.Y, uv.X),
-                _   => uv
-            };
-        }
-
-        return r;
-    }
 }
 #endregion

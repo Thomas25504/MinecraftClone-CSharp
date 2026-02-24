@@ -52,13 +52,13 @@ public class TextureAtlas
 
         return new[]
         {
-            new Vector2(u, v),
+            new Vector2(u,        v + size),
+            new Vector2(u + size, v + size),
             new Vector2(u + size, v),
-            new Vector2(u + size, v + size),
 
-            new Vector2(u + size, v + size),
-            new Vector2(u, v + size),
-            new Vector2(u, v)
+            new Vector2(u + size, v),
+            new Vector2(u,        v),
+            new Vector2(u,        v + size)
         };
     }
 }

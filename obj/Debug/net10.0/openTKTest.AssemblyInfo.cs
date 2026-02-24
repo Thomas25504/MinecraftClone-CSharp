@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("openTKTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d54b567e1b9e1547866f323bfb22ce67c6d22410")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a7565cf357494b4bf7589dc0e7d4f452f3c7e4b5")]
 [assembly: System.Reflection.AssemblyProductAttribute("openTKTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("openTKTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
