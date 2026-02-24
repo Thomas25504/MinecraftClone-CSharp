@@ -85,28 +85,30 @@ public class World
     }
 
     // Check if a block at world coordinates is solid
-    public bool IsBlockSolid(Vector3i worldPos)
-{
-    int chunkX = (int)MathF.Floor(worldPos.X / (float)Chunk.Size);
-    int chunkZ = (int)MathF.Floor(worldPos.Z / (float)Chunk.Size);
+    public bool IsBlockSolid(Vector3i worldPos) => GetBlock(worldPos).IsSolid;
 
-    Vector2i chunkCoord = new(chunkX, chunkZ);
+    public Block GetBlock(Vector3i worldPos)
+    {
+        int chunkX = (int)MathF.Floor(worldPos.X / (float)Chunk.Size);
+        int chunkZ = (int)MathF.Floor(worldPos.Z / (float)Chunk.Size);
 
-    if (!Chunks.TryGetValue(chunkCoord, out Chunk chunk))
-        return false; // chunk not loaded = air
+        Vector2i chunkCoord = new(chunkX, chunkZ);
 
-    int localX = worldPos.X - chunkX * Chunk.Size;
-    int localY = worldPos.Y;
-    int localZ = worldPos.Z - chunkZ * Chunk.Size;
+        if (!Chunks.TryGetValue(chunkCoord, out Chunk chunk))
+            return Block.Air; // chunk not loaded = air
 
-    // Bounds check
-    if (localX < 0 || localX >= Chunk.Size ||
-        localY < 0 || localY >= Chunk.Size ||
-        localZ < 0 || localZ >= Chunk.Size)
-        return false;
+        int localX = worldPos.X - chunkX * Chunk.Size;
+        int localY = worldPos.Y;
+        int localZ = worldPos.Z - chunkZ * Chunk.Size;
 
-    return chunk.Blocks[localX, localY, localZ].IsSolid;
-}
+        // Bounds check
+        if (localX < 0 || localX >= Chunk.Size ||
+            localY < 0 || localY >= Chunk.Size ||
+            localZ < 0 || localZ >= Chunk.Size)
+            return Block.Air;
+
+        return chunk.Blocks[localX, localY, localZ];
+    }
 
     #endregion
 

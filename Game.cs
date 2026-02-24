@@ -39,6 +39,10 @@ public class Game : GameWindow
 
         // OpenGL state
         GL.ClearColor(0.4f, 0.7f, 1.0f, 1f);
+
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
         GL.Enable(EnableCap.DepthTest);
         GL.Enable(EnableCap.CullFace);
         GL.CullFace(CullFaceMode.Back);
@@ -79,8 +83,15 @@ public class Game : GameWindow
         // Render all loaded chunks
         foreach (var chunk in world.Chunks.Values)
         {
-            chunk.Render(shader, atlas);
+            chunk.Render(shader, atlas, transparent: false); // Render opaque blocks first
         }
+
+        GL.DepthMask(false); // Disable depth writing for transparent blocks
+        foreach (var chunk in world.Chunks.Values)
+        {
+            chunk.Render(shader, atlas, transparent: true); // Render transparent blocks last
+        }
+        GL.DepthMask(true); // Re-enable depth writing
 
         SwapBuffers();
     }

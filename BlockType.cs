@@ -7,6 +7,8 @@ public enum BlockType
     Dirt,
     Stone,
     Sand,
+    Wood,
+    Glass,
     Water
 }
 
