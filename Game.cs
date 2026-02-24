@@ -5,6 +5,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Mathematics;
+using System.Runtime.CompilerServices;
 
 namespace OpenTKTest;
 
@@ -14,14 +15,67 @@ public class Game : GameWindow
     Shader? shader;
     Matrix4 projection;
 
-    float[] vertices = { // Triangle vertices
-        -0.5f, -0.5f, 0.0f, //Bottom-left vertex
-        0.5f, -0.5f, 0.0f, //Bottom-right vertex
-        0.0f,  0.5f, 0.0f  //Top vertex
+    public Camera camera;
+
+    private int vao;
+    private int vbo;
+    private bool _firstMove = true;
+    private Vector2 _lastMousePos;
+    private float _speed = 5f;
+    private float _sensitivity = 0.2f;
+    
+    private bool _cursorLocked = true;
+
+    float[] vertices = { // Cube vertices (36 vertices for 6 faces)
+        // Front face
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+
+        // Back face
+        -0.5f, -0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+
+        // Top face
+        -0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+
+        // Bottom face
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
+
+        // Right face
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f, -0.5f,
+
+        // Left face
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f
     };
 
-    int vbo; // Vertex Buffer Object
-    int vao; // Vertex Array Object
 
     // Constructor for the Game class, which initializes the game window with specified width, height, and title.
     public Game(int width, int height, string title)
@@ -31,10 +85,16 @@ public class Game : GameWindow
     protected override void OnLoad()
     {
         base.OnLoad();
+        
 
-    
+        camera = new Camera(new Vector3(0, 0, 5), Size.X / (float)Size.Y);  
+        
+        // Capture and hide the cursor for FPS-style camera control
+        CursorState = CursorState.Grabbed;
+        
         // Set the clear color for the OpenGL context to a light blue color.
         GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        //GL.Enable(EnableCap.DepthTest);
 
         // Generate and bind a Vertex Array Object (VAO) to store the vertex attribute configuration.
         vbo = GL.GenBuffer();
@@ -67,8 +127,16 @@ public class Game : GameWindow
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
         shader.Use();
+        
+        // Update view matrix based on camera position
+        Matrix4 view = camera.GetViewMatrix();
+
+        shader.SetMatrix4("model", Matrix4.Identity);
+        shader.SetMatrix4("view", camera.GetViewMatrix());
+        shader.SetMatrix4("projection", camera.GetProjectionMatrix());
+        
         GL.BindVertexArray(vao);
-        GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
         // Swap the front and back buffers to display the rendered frame on the screen.
         SwapBuffers();
@@ -88,10 +156,10 @@ public class Game : GameWindow
         shader?.SetMatrix4("projection", projection);
     }
 
-    protected override void OnUpdateFrame(FrameEventArgs e)
+    protected override void OnUpdateFrame(FrameEventArgs args)
     {
         // Call the base class's OnUpdateFrame method to ensure any necessary updates are performed.
-        base.OnUpdateFrame(e);
+        base.OnUpdateFrame(args);
 
         // Close the game window if the Escape key is pressed.
         if (KeyboardState.IsKeyDown(Keys.Escape))
@@ -99,7 +167,56 @@ public class Game : GameWindow
             Console.WriteLine("Escape key pressed. Closing the game.");
             Close();
         }
+        
+        // Toggle cursor lock with R key
+        if (KeyboardState.IsKeyPressed(Keys.R))
+        {
+            _cursorLocked = !_cursorLocked;
+            CursorState = _cursorLocked ? CursorState.Grabbed : CursorState.Normal;
+            if (!_cursorLocked)
+            {
+                _firstMove = true; // Reset first move when unlocking to avoid camera jump
+            }
+        }
+
+        float delta = (float)args.Time;
+        var input = KeyboardState;
+
+        if (input.IsKeyDown(Keys.W))
+            camera.Position += camera.Front * _speed * delta;
+        if (input.IsKeyDown(Keys.S))
+            camera.Position -= camera.Front * _speed * delta;
+        if (input.IsKeyDown(Keys.A))
+            camera.Position -= camera.Right * _speed * delta;
+        if (input.IsKeyDown(Keys.D))
+            camera.Position += camera.Right * _speed * delta;
+        if (input.IsKeyDown(Keys.Space))
+            camera.Position += Vector3.UnitY * _speed * delta;
+        if (input.IsKeyDown(Keys.LeftShift))
+            camera.Position -= Vector3.UnitY * _speed * delta;
+
+        // Only update camera rotation if cursor is locked
+        if (_cursorLocked)
+        {
+            var mouse = MouseState;
+            if (_firstMove)
+            {
+                _lastMousePos = new Vector2(mouse.X, mouse.Y);
+                _firstMove = false;
+            }
+            else
+            {
+                float dx = mouse.X - _lastMousePos.X;
+                float dy = mouse.Y - _lastMousePos.Y;
+                _lastMousePos = new Vector2(mouse.X, mouse.Y);
+
+                camera.Yaw += dx * _sensitivity;
+                camera.Pitch -= dy * _sensitivity;
+            }
+        }
+
     }
+
 
     protected override void OnUnload()
     {
