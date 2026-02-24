@@ -20,12 +20,27 @@
   </ItemGroup>
 
   <ItemGroup>
-      <None Update="text.vert">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="text.frag">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+    <None Update="Atlas.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="shader.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="shader.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="crosshair.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="crosshair.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="outline.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="outline.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

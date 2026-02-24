@@ -99,3 +99,9 @@ C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\System.Drawing.Common.dll
 C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\System.Private.Windows.Core.dll
 C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\System.Private.Windows.GdiPlus.dll
 C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\runtimes\win\lib\net10.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\Shaders\crosshair.frag
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\Shaders\crosshair.vert
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\Shaders\outline.frag
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\Shaders\outline.vert
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\Shaders\shader.frag
+C:\Users\Tomas\Documents\openTKTest\bin\Debug\net10.0\Shaders\shader.vert

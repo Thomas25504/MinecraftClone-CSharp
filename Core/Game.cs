@@ -63,17 +63,17 @@ public class Game : GameWindow
         float aspect = Size.X / (float)Size.Y;
         camera = new Camera(new Vector3(8, 12, 30), aspect);
 
-        crosshairShader = new Shader("crosshair.vert", "crosshair.frag");
+        crosshairShader = new Shader("Shaders/crosshair.vert", "Shaders/crosshair.frag");
         InitCrosshair();
 
         // Shader setup
-        shader = new Shader("shader.vert", "shader.frag");
+        shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
 
-        outlineShader = new Shader("outline.vert", "outline.frag");
+        outlineShader = new Shader("Shaders/outline.vert", "Shaders/outline.frag");
         InitOutline();
 
         // World + chunk setup
-        atlas = new TextureAtlas("Atlas.png");
+        atlas = new TextureAtlas("Assets/Textures/Atlas.png");
         world = new World();
     }
 

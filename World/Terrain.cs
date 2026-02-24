@@ -1,8 +1,6 @@
 namespace OpenTKTest;
 
-
-
-   public static class Terrain
+public static class Terrain
 {
     public static int GetHeight(int worldX, int worldZ)
     {
