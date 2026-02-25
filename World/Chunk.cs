@@ -47,7 +47,7 @@ public class Chunk
     // Simple terrain generation based on heightmap
     private void GenerateBlocks()
     {
-        // First pass - generate terrain as normal
+        // First pass - terrain
         for (int x = 0; x < SizeX; x++)
         for (int z = 0; z < SizeZ; z++)
         {
@@ -55,48 +55,79 @@ public class Chunk
             int worldZ = (int)Position.Z + z;
 
             int height = Terrain.GetHeight(worldX, worldZ);
+            bool isSandArea = Terrain.ShouldBeSand(worldX, worldZ);
 
             for (int y = 0; y < SizeY; y++)
             {
                 int worldY = (int)Position.Y + y;
 
-                if (worldY > height)
+                if (worldY > height && worldY <= Terrain.SeaLevel)
+                {
+                    // Below sea level and above terrain - fill with water
+                    Blocks[x, y, z] = Block.Water;
+                }
+                else if (worldY > height)
+                {
+                    // Above terrain and sea level - air
                     Blocks[x, y, z] = Block.Air;
+                }
                 else if (worldY == height)
-                    Blocks[x, y, z] = Block.Grass;
+                {
+                    if (isSandArea)
+                        Blocks[x, y, z] = Block.Sand;
+                    else if (worldY < Terrain.SeaLevel) // Underwater surface becomes dirt
+                        Blocks[x, y, z] = Block.Dirt;
+                    else
+                        Blocks[x, y, z] = Block.Grass;
+                }
+                else if (worldY >= height - 3)
+                {
+                    // A few blocks below surface
+                    if (isSandArea)
+                        Blocks[x, y, z] = Block.Sand;
+                    else
+                        Blocks[x, y, z] = Block.Dirt;
+                }
                 else
-                    Blocks[x, y, z] = Block.Dirt;
+                {
+                    // Deep underground
+                    Blocks[x, y, z] = Block.Stone;
+                }
             }
         }
 
-        // Second pass - check a larger area around the chunk for trees
-        // Trees can have leaves up to 2 blocks outside their trunk position
+        // Second pass - trees (skip sand/water areas)
         int treeRadius = 2;
 
         for (int wx = (int)Position.X - treeRadius; wx < (int)Position.X + SizeX + treeRadius; wx++)
         for (int wz = (int)Position.Z - treeRadius; wz < (int)Position.Z + SizeZ + treeRadius; wz++)
         {
+            // Don't spawn trees near water
+            if (Terrain.ShouldBeSand(wx, wz))
+                continue;
+
             if (!Terrain.ShouldSpawnTree(wx, wz))
                 continue;
 
             int treeHeight = Terrain.GetHeight(wx, wz);
-            int treeBaseY = treeHeight + 1;
 
+            // Don't spawn trees underwater
+            if (treeHeight <= Terrain.SeaLevel)
+                continue;
+
+            int treeBaseY = treeHeight + 1;
             var treeBlocks = TreeGenerator.GenerateTree(wx, treeBaseY, wz);
 
             foreach (var (tx, ty, tz, block) in treeBlocks)
             {
-                // Convert world position to local chunk position
                 int localX = tx - (int)Position.X;
                 int localY = ty;
                 int localZ = tz - (int)Position.Z;
 
-                // Only place if within this chunk's bounds
                 if (localX >= 0 && localX < SizeX &&
                     localY >= 0 && localY < SizeY &&
                     localZ >= 0 && localZ < SizeZ)
                 {
-                    // Don't overwrite solid terrain blocks with leaves
                     if (block.Type == BlockType.Leaves && Blocks[localX, localY, localZ].IsSolid)
                         continue;
 
@@ -270,11 +301,12 @@ public class Chunk
         Block current = Blocks[x, y, z];
         Block neighbor = world.GetBlock(neighborWorld);
 
-        // Always show face if neighbor is air
         if (!neighbor.IsSolid) return true;
 
-        // Show face if neighbor is transparent and current block is not the same type
-        // This prevents leaf-on-leaf faces being hidden
+        // Don't render faces between two water blocks
+        if (current.Type == BlockType.Water && neighbor.Type == BlockType.Water)
+            return false;
+
         if (neighbor.IsTransparent && neighbor.Type != current.Type) return true;
 
         return false;

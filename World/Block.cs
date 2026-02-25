@@ -5,7 +5,7 @@ public class Block
     public BlockType Type; // Type of block
 
     public bool IsSolid => Type != BlockType.Air; // Air is not solid, everything else is
-    public bool IsTransparent => Type == BlockType.Glass || Type == BlockType.Leaves;// Glass is transparent
+    public bool IsTransparent => Type == BlockType.Glass || Type == BlockType.Leaves || Type == BlockType.Pink_Leaves || Type == BlockType.Water;// Glass is transparent
     
 
     // Atlas tile indices
@@ -89,13 +89,40 @@ public class Block
         BottomTexture = 10,
     };
 
+    public static Block Pink_Log => new Block
+    {
+        Type = BlockType.Pink_Log,
+        TopTexture = 12,
+        SideTexture = 11,
+        BottomTexture = 12
+    };
+
+    public static Block Pink_Leaves => new Block
+    {
+        Type = BlockType.Pink_Leaves,
+        TopTexture = 13,
+        SideTexture = 13,
+        BottomTexture = 13,
+    };
+
+    public static Block Water => new Block
+    {
+        Type = BlockType.Water,
+        TopTexture = 14,
+        SideTexture = 14,
+        BottomTexture = 14
+    };
+
         public static Block FromType(BlockType type) => type switch
     {
         BlockType.Dirt  => Dirt,
         BlockType.Grass => Grass,
         BlockType.Log   => Log,
         BlockType.Leaves => Leaves,
+        BlockType.Pink_Log => Pink_Log,
+        BlockType.Pink_Leaves => Pink_Leaves,
         BlockType.Sand  => Sand,
+        BlockType.Water => Water,
         BlockType.Wood  => Wood,
         BlockType.Stone => Stone,
         BlockType.Glass => Glass,

@@ -12,6 +12,8 @@ public enum BlockType
     Pink_Heart,
     Water,
     Log,
-    Leaves
+    Leaves,
+    Pink_Log,
+    Pink_Leaves
 }
 
