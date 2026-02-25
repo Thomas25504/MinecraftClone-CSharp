@@ -69,32 +69,38 @@ public class Chunk
             }
         }
 
-        // Second pass - place trees on the surface
-        for (int x = 0; x < SizeX; x++)
-        for (int z = 0; z < SizeZ; z++)
+        // Second pass - check a larger area around the chunk for trees
+        // Trees can have leaves up to 2 blocks outside their trunk position
+        int treeRadius = 2;
+
+        for (int wx = (int)Position.X - treeRadius; wx < (int)Position.X + SizeX + treeRadius; wx++)
+        for (int wz = (int)Position.Z - treeRadius; wz < (int)Position.Z + SizeZ + treeRadius; wz++)
         {
-            int worldX = (int)Position.X + x;
-            int worldZ = (int)Position.Z + z;
-
-            if (!Terrain.ShouldSpawnTree(worldX, worldZ))
+            if (!Terrain.ShouldSpawnTree(wx, wz))
                 continue;
 
-            int height = Terrain.GetHeight(worldX, worldZ);
-            int localY = height - (int)Position.Y + 1; // Place on top of surface
+            int treeHeight = Terrain.GetHeight(wx, wz);
+            int treeBaseY = treeHeight + 1;
 
-            if (localY < 0 || localY >= SizeY)
-                continue;
-
-            var treeBlocks = TreeGenerator.GenerateTree(x, localY, z);
+            var treeBlocks = TreeGenerator.GenerateTree(wx, treeBaseY, wz);
 
             foreach (var (tx, ty, tz, block) in treeBlocks)
             {
-                // Only place blocks within this chunk's bounds
-                if (tx >= 0 && tx < SizeX &&
-                    ty >= 0 && ty < SizeY &&
-                    tz >= 0 && tz < SizeZ)
+                // Convert world position to local chunk position
+                int localX = tx - (int)Position.X;
+                int localY = ty;
+                int localZ = tz - (int)Position.Z;
+
+                // Only place if within this chunk's bounds
+                if (localX >= 0 && localX < SizeX &&
+                    localY >= 0 && localY < SizeY &&
+                    localZ >= 0 && localZ < SizeZ)
                 {
-                    Blocks[tx, ty, tz] = block;
+                    // Don't overwrite solid terrain blocks with leaves
+                    if (block.Type == BlockType.Leaves && Blocks[localX, localY, localZ].IsSolid)
+                        continue;
+
+                    Blocks[localX, localY, localZ] = block;
                 }
             }
         }
