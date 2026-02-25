@@ -10,6 +10,8 @@ public enum BlockType
     Wood,
     Glass,
     Pink_Heart,
-    Water
+    Water,
+    Log,
+    Leaves
 }
 

@@ -47,6 +47,7 @@ public class Chunk
     // Simple terrain generation based on heightmap
     private void GenerateBlocks()
     {
+        // First pass - generate terrain as normal
         for (int x = 0; x < SizeX; x++)
         for (int z = 0; z < SizeZ; z++)
         {
@@ -60,16 +61,40 @@ public class Chunk
                 int worldY = (int)Position.Y + y;
 
                 if (worldY > height)
-                {
                     Blocks[x, y, z] = Block.Air;
-                }
                 else if (worldY == height)
-                {
-                    Blocks[x, y, z] = Block.Grass; 
-                }
+                    Blocks[x, y, z] = Block.Grass;
                 else
-                {
                     Blocks[x, y, z] = Block.Dirt;
+            }
+        }
+
+        // Second pass - place trees on the surface
+        for (int x = 0; x < SizeX; x++)
+        for (int z = 0; z < SizeZ; z++)
+        {
+            int worldX = (int)Position.X + x;
+            int worldZ = (int)Position.Z + z;
+
+            if (!Terrain.ShouldSpawnTree(worldX, worldZ))
+                continue;
+
+            int height = Terrain.GetHeight(worldX, worldZ);
+            int localY = height - (int)Position.Y + 1; // Place on top of surface
+
+            if (localY < 0 || localY >= SizeY)
+                continue;
+
+            var treeBlocks = TreeGenerator.GenerateTree(x, localY, z);
+
+            foreach (var (tx, ty, tz, block) in treeBlocks)
+            {
+                // Only place blocks within this chunk's bounds
+                if (tx >= 0 && tx < SizeX &&
+                    ty >= 0 && ty < SizeY &&
+                    tz >= 0 && tz < SizeZ)
+                {
+                    Blocks[tx, ty, tz] = block;
                 }
             }
         }
@@ -236,9 +261,17 @@ public class Chunk
             neighborLocal.Z
         );
 
-        // Also show face if neighbor is transparent
+        Block current = Blocks[x, y, z];
         Block neighbor = world.GetBlock(neighborWorld);
-        return !neighbor.IsSolid || neighbor.IsTransparent;
+
+        // Always show face if neighbor is air
+        if (!neighbor.IsSolid) return true;
+
+        // Show face if neighbor is transparent and current block is not the same type
+        // This prevents leaf-on-leaf faces being hidden
+        if (neighbor.IsTransparent && neighbor.Type != current.Type) return true;
+
+        return false;
     }
 
     // Uploads the vertex data to the GPU and sets up the vertex attributes
