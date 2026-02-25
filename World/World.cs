@@ -7,6 +7,13 @@ public class World
     // How many chunks to load in each direction around the player
     public const int RenderDistance = 4;
 
+    private string saveDirectory = "Saves";
+
+    public World()
+    {
+        Directory.CreateDirectory(saveDirectory);
+    }
+
     // Neighbor offsets for mesh updates
     private static readonly Vector2i[] NeighborOffsets =
     {
@@ -30,6 +37,46 @@ public class World
 
     #region Chunk Loading
 
+    private void SaveChunk(Vector2i coord, Chunk chunk)
+    {
+        string path = Path.Combine(saveDirectory, $"{coord.X}_{coord.Y}.bin");
+
+        using var writer = new BinaryWriter(File.Open(path, FileMode.Create));
+
+        for (int x = 0; x < Chunk.SizeX; x++)
+        for (int y = 0; y < Chunk.SizeY; y++)
+        for (int z = 0; z < Chunk.SizeZ; z++)
+        {
+            writer.Write((byte)chunk.Blocks[x, y, z].Type);
+        }
+    }
+
+    private bool TryLoadChunk(Vector2i coord, World world, Vector3 worldPos, out Chunk chunk)
+    {
+        string path = Path.Combine(saveDirectory, $"{coord.X}_{coord.Y}.bin");
+
+        if (!File.Exists(path))
+        {
+            chunk = null;
+            return false;
+        }
+
+        chunk = new Chunk(world, worldPos, skipGenerate: true); // No BuildMesh yet
+
+        using var reader = new BinaryReader(File.Open(path, FileMode.Open));
+
+        for (int x = 0; x < Chunk.SizeX; x++)
+        for (int y = 0; y < Chunk.SizeY; y++)
+        for (int z = 0; z < Chunk.SizeZ; z++)
+        {
+            BlockType type = (BlockType)reader.ReadByte();
+            chunk.Blocks[x, y, z] = Block.FromType(type);
+        }
+
+        chunk.RebuildMesh(); // Now blocks are filled, safe to build mesh
+        return true;
+    }
+
     // Load chunks within render distance and trigger mesh rebuilds for neighbors
     private void LoadChunksAround(Vector2i center)
     {
@@ -46,9 +93,15 @@ public class World
                     coord.Y * Chunk.SizeZ
                 );
 
-                Chunk chunk = new Chunk(this, worldPos);
+                Chunk chunk;
+
+                // Try loading from disk first, otherwise generate fresh
+                if (!TryLoadChunk(coord, this, worldPos, out chunk))
+                {
+                    chunk = new Chunk(this, worldPos);
+                }
+
                 Chunks.Add(coord, chunk);
-                chunk.RebuildMesh();
 
                 foreach (var offset in NeighborOffsets)
                 {
@@ -80,6 +133,7 @@ public class World
 
         foreach (var key in toRemove)
         {
+            SaveChunk(key, Chunks[key]); // Save before unloading
             Chunks.Remove(key);
         }
     }

@@ -1,0 +1,15 @@
+# Save data
+Saves/
+
+# Build output
+bin/
+obj/
+
+# VS/Rider
+.vs/
+.idea/
+*.user
+
+# OS
+.DS_Store
+Thumbs.db

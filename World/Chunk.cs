@@ -19,12 +19,16 @@ public class Chunk
     private int vaoTransparent, vboTransparent, vertexCountTransparent;
 
     // Constructor generates blocks and builds the mesh
-    public Chunk(World world, Vector3 position)
+    public Chunk(World world, Vector3 position, bool skipGenerate = false)
      {
         this.world = world;
         this.Position = position;
-        GenerateBlocks();
-        BuildMesh();
+
+        if (!skipGenerate)
+        {
+            GenerateBlocks();
+            BuildMesh();
+        }
      }
     
     //Rebuilds the mesh (called when blocks are modified)    
