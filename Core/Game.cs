@@ -74,7 +74,8 @@ public class Game : GameWindow
 
         // World + chunk setup
         atlas = new TextureAtlas("Assets/Textures/Atlas.png");
-        world = new World();
+        string worldName = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        world = new World(worldName);
     }
 
     // Called every frame to render the scene

@@ -7,10 +7,11 @@ public class World
     // How many chunks to load in each direction around the player
     public const int RenderDistance = 4;
 
-    private string saveDirectory = "Saves";
+    private string saveDirectory;
 
-    public World()
+    public World(string worldName = "World1")
     {
+        saveDirectory = Path.Combine("Saves", worldName);
         Directory.CreateDirectory(saveDirectory);
     }
 
