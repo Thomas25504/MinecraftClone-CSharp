@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
@@ -267,6 +268,12 @@ public class Chunk
                 for (int i = 0; i < 6; i++)
                 {
                     Vector3 pos = Faces[f][i] + new Vector3(x, y, z);
+
+                    if(block.Type == BlockType.Water)
+                    {
+                        pos.Y -= 0.1f; // Lower water surface for better look
+                    }
+
                     Vector2 uv  = uvs[i];
 
                     target.Add(pos.X);
