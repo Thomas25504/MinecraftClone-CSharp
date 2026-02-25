@@ -27,6 +27,9 @@ A Minecraft-style voxel engine built in C# using OpenTK and OpenGL.
 ### Wireframe View
 ![Wireframe](Screenshots/WireFrame.JPG)
 
+### Tree Generation
+![TreeGeneration](Screenshots/TreeGeneration.png)
+
 # Development Journey
 
 ## Bug Fixes Along the Way
@@ -45,6 +48,15 @@ Side face textures were rendering upside down due to OpenGL's bottom-left UV ori
 ![Raycast Debug](Screenshots/RaycastIssue.JPG)
 
 Raycast debugging with block outline to align break/place targeting with the crosshair.
+
+### Tree Generation
+![Tree Generation Error](Screenshots/TreeError.png)
+
+Tree rendering was incorrect due to shader and leaves being transparent
+
+![Tree Generation Error](Screenshots/TreeError2.png)
+
+Faces of blocks next to leaves would be culled when they should be visible  
 
 ## Controls
 
