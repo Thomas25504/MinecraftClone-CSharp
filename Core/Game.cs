@@ -173,6 +173,15 @@ public class Game : GameWindow
                 world.SetBlock(hitPos, Block.Air);
             }
         }
+        // else if(MouseState.IsButtonDown(MouseButton.Left) && rightMouseWasUp)
+        // {
+        //     rightMouseWasUp = false;
+        //     if (Raycast(out Vector3i hitPos, out _))
+        //     {
+        //         world.SetBlock(hitPos, Block.Air);
+        //     }
+        // }
+
         if (!MouseState.IsButtonDown(MouseButton.Left)) leftMouseWasUp = true;
 
         // Right click - place block
@@ -183,7 +192,10 @@ public class Game : GameWindow
             {
                 world.SetBlock(placePos, Block.FromType(selectedBlock));
             }
+            
+            
         }
+       
         if (!MouseState.IsButtonDown(MouseButton.Right)) rightMouseWasUp = true;
 
         // Movement
@@ -316,6 +328,7 @@ public class Game : GameWindow
                 placePos = last;
                 return true;
             }
+            
         }
 
         return false;
@@ -412,4 +425,7 @@ public class Game : GameWindow
         GL.DrawArrays(PrimitiveType.Lines, 0, 24);
         GL.DepthMask(true);
     }
+
 }
+
+
